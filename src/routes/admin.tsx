@@ -9,9 +9,16 @@ export const Route = createFileRoute("/admin")({
     if (location.pathname === "/admin/login") {
       return;
     }
+    
+    // Skip auth check on server side because localStorage is not available in SSR
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const {
       data: { session },
     } = await supabase.auth.getSession();
+    
     if (!session) {
       throw redirect({ to: "/admin/login" });
     }
