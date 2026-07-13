@@ -9,6 +9,7 @@ import { useMenuCategories, useMenuItems } from "@/hooks/useData";
 import { useCart } from "@/store/cart";
 import { useFavorites } from "@/store/favorites";
 import type { Product } from "@/types";
+import { getProductDisplayPrice } from "@/lib/utils";
 
 export const Route = createFileRoute("/menu")({
   component: MenuPage,
@@ -70,6 +71,7 @@ function MenuPage() {
 
   const handleAdd = (p: Product) => {
     const size = p.product_sizes?.[0];
+    const { final: unitPrice } = getProductDisplayPrice(p, size);
     addItem({
       key: size ? `${p.id}:${size.id}` : p.id,
       productId: p.id,
@@ -78,7 +80,7 @@ function MenuPage() {
       title: p.name,
       description: p.description,
       imageUrl: p.image_url,
-      unitPrice: size ? size.price : (p.base_price ?? 0),
+      unitPrice,
       quantity: 1,
     });
     toast.success("تمت الإضافة إلى السلة");
@@ -135,7 +137,7 @@ function MenuPage() {
                     <div className="grid grid-cols-2 gap-2.5 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
                       {catItems.map((item) => {
                         const size = item.product_sizes?.[0];
-                        const displayPrice = size ? size.price : (item.base_price ?? 0);
+                        const { original, final, hasDiscount } = getProductDisplayPrice(item, size);
                         const fav = isFavorite(item.id);
                         return (
                           <article
@@ -144,6 +146,13 @@ function MenuPage() {
                           >
                             <div className="pointer-events-none absolute inset-x-1.5 top-1.5 sm:inset-x-2 sm:top-2 z-10 flex items-start justify-between">
                               <div className="flex gap-1 flex-wrap">
+                                {hasDiscount && (
+                                  <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-crimson/95 py-0.5 px-2 sm:py-1 sm:px-2.5 shadow-sm">
+                                    <span className="text-[9px] sm:text-[10px] font-semibold text-white">
+                                      {item.discount_type === "percentage" ? `خصم ${item.discount_value}%` : `خصم ${item.discount_value} ج.م`}
+                                    </span>
+                                  </div>
+                                )}
                                 {item.tag && (
                                   <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-white/95 py-0.5 px-2 sm:py-1 sm:px-2.5 shadow-sm">
                                     <Star className="h-3 w-3 fill-amber-glow text-amber-glow" />
@@ -205,11 +214,18 @@ function MenuPage() {
                               </div>
 
                               <div className="mt-3 sm:mt-4 flex items-center justify-between">
-                                <div className="text-right font-display font-bold text-crimson">
-                                  <span className="text-base sm:text-xl">{displayPrice}</span>
-                                  <span className="mr-1 text-[10px] sm:text-xs font-semibold text-crimson/70">
-                                    ج.م
-                                  </span>
+                                <div className="text-right flex flex-col">
+                                  {hasDiscount && (
+                                    <span className="text-[10px] sm:text-[11px] text-ink/50 line-through leading-none mb-0.5">
+                                      {original} ج.م
+                                    </span>
+                                  )}
+                                  <div className="font-display font-bold text-crimson">
+                                    <span className="text-base sm:text-xl">{final}</span>
+                                    <span className="mr-1 text-[10px] sm:text-xs font-semibold text-crimson/70">
+                                      ج.م
+                                    </span>
+                                  </div>
                                 </div>
                                 <button
                                   type="button"

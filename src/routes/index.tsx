@@ -9,6 +9,7 @@ import { useCategories, useFeaturedProducts } from "@/hooks/useData";
 import { useCart } from "@/store/cart";
 import { useFavorites } from "@/store/favorites";
 import type { Product } from "@/types";
+import { getProductDisplayPrice } from "@/lib/utils";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -160,6 +161,7 @@ function FeaturedSection() {
 
   const handleAdd = (p: Product) => {
     const size = p.product_sizes?.[0];
+    const { final: unitPrice } = getProductDisplayPrice(p, size);
     addItem({
       key: size ? `${p.id}:${size.id}` : p.id,
       productId: p.id,
@@ -168,7 +170,7 @@ function FeaturedSection() {
       title: p.name,
       description: p.description,
       imageUrl: p.image_url,
-      unitPrice: size ? size.price : (p.base_price ?? 0),
+      unitPrice,
       quantity: 1,
     });
     toast.success("تمت الإضافة إلى السلة");
@@ -198,7 +200,7 @@ function FeaturedSection() {
         <div className="mt-6 grid grid-cols-2 gap-2.5 sm:gap-5 md:grid-cols-4">
           {safeFeatured.map((p) => {
             const size = p.product_sizes?.[0];
-            const displayPrice = size ? size.price : (p.base_price ?? 0);
+            const { original, final, hasDiscount } = getProductDisplayPrice(p, size);
             const fav = isFavorite(p.id);
             return (
               <article
@@ -207,6 +209,13 @@ function FeaturedSection() {
               >
                 <div className="pointer-events-none absolute inset-x-1.5 top-1.5 sm:inset-x-2 sm:top-2 z-10 flex items-start justify-between">
                   <div className="flex gap-1 flex-wrap">
+                    {hasDiscount && (
+                      <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-crimson/95 py-0.5 px-2 sm:py-1 sm:px-2.5 shadow-sm">
+                        <span className="text-[9px] sm:text-[10px] font-semibold text-white">
+                          {p.discount_type === "percentage" ? `خصم ${p.discount_value}%` : `خصم ${p.discount_value} ج.م`}
+                        </span>
+                      </div>
+                    )}
                     {p.tag && (
                       <div className="pointer-events-auto flex items-center gap-1 rounded-full bg-white/95 py-0.5 px-2 sm:py-1 sm:px-2.5 shadow-sm">
                         <Star className="h-3 w-3 fill-amber-glow text-amber-glow" />
@@ -268,11 +277,18 @@ function FeaturedSection() {
                   </div>
 
                   <div className="mt-3 sm:mt-4 flex items-center justify-between">
-                    <div className="text-right font-display font-bold text-crimson">
-                      <span className="text-base sm:text-xl">{displayPrice}</span>
-                      <span className="mr-1 text-[10px] sm:text-xs font-semibold text-crimson/70">
-                        ج.م
-                      </span>
+                    <div className="text-right flex flex-col">
+                      {hasDiscount && (
+                        <span className="text-[10px] sm:text-[11px] text-ink/50 line-through leading-none mb-0.5">
+                          {original} ج.م
+                        </span>
+                      )}
+                      <div className="font-display font-bold text-crimson">
+                        <span className="text-base sm:text-xl">{final}</span>
+                        <span className="mr-1 text-[10px] sm:text-xs font-semibold text-crimson/70">
+                          ج.م
+                        </span>
+                      </div>
                     </div>
                     <button
                       type="button"

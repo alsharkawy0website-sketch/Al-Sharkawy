@@ -8,7 +8,7 @@ import { useProduct } from "@/hooks/useData";
 import { useCart } from "@/store/cart";
 import { useFavorites } from "@/store/favorites";
 import type { ProductSize } from "@/types";
-
+import { getProductDisplayPrice } from "@/lib/utils";
 export const Route = createFileRoute("/product/$id")({
   component: ProductPage,
 });
@@ -33,7 +33,9 @@ function ProductPage() {
     () => (selectedSizeId ? sizes.find((s) => s.id === selectedSizeId) : sizes[0]) ?? null,
     [selectedSizeId, sizes],
   );
-  const unitPrice = activeSize ? activeSize.price : (product?.base_price ?? 0);
+  const { original, final: unitPrice, hasDiscount } = product 
+    ? getProductDisplayPrice(product, activeSize)
+    : { original: 0, final: 0, hasDiscount: false };
   const favorite = product ? isFavorite(product.id) : false;
 
   if (isLoading) {
@@ -115,6 +117,13 @@ function ProductPage() {
             <div className="relative aspect-square w-full rounded-3xl overflow-hidden bg-cream shadow-sm ring-1 ring-black/5">
               <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-start pointer-events-none">
                 <div className="flex gap-2 flex-wrap">
+                  {hasDiscount && (
+                    <div className="pointer-events-auto flex items-center gap-1.5 rounded-full bg-crimson/95 py-1 px-3 shadow-md backdrop-blur-sm">
+                      <span className="text-xs font-semibold text-white">
+                        {product.discount_type === "percentage" ? `خصم ${product.discount_value}%` : `خصم ${product.discount_value} ج.م`}
+                      </span>
+                    </div>
+                  )}
                   {product.tag && (
                     <div className="pointer-events-auto flex items-center gap-1.5 rounded-full bg-white/95 py-1 px-3 shadow-md backdrop-blur-sm">
                       <Star className="h-4 w-4 fill-amber-glow text-amber-glow" />
@@ -153,9 +162,16 @@ function ProductPage() {
                 {product.name}
               </h1>
 
-              <div className="text-2xl sm:text-3xl font-display font-bold text-crimson mb-6 flex items-baseline gap-1.5">
-                {unitPrice}
-                <span className="text-sm sm:text-base font-semibold text-crimson/70">ج.م</span>
+              <div className="flex flex-col mb-6">
+                {hasDiscount && (
+                  <span className="text-sm sm:text-base text-ink/50 line-through leading-none mb-1">
+                    {original} ج.م
+                  </span>
+                )}
+                <div className="text-2xl sm:text-3xl font-display font-bold text-crimson flex items-baseline gap-1.5">
+                  {unitPrice}
+                  <span className="text-sm sm:text-base font-semibold text-crimson/70">ج.م</span>
+                </div>
               </div>
 
               {product.description && (
