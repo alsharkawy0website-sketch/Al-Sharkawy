@@ -80,25 +80,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "الشرقاوي | El-Sharkawy — مشويات مصرية أصيلة" },
+      { title: "الشرقاوي | كبدة ومخ ومأكولات بحرية" },
       {
         name: "description",
         content:
-          "مطعم الشرقاوي — كفتة وكباب مشوي على الفحم، حواوشي، وكبدة إسكندراني بأعلى جودة. تجربة مشويات مصرية أصيلة تحت إشراف خبراء الشوي.",
+          "مطعم الشرقاوي - أشهى أطباق الكبدة بالردة، المخ بانيه، والمأكولات البحرية بالتتبيلة الأصيلة.",
       },
       { name: "author", content: "El-Sharkawy" },
-      { property: "og:title", content: "الشرقاوي" },
+      { property: "og:title", content: "الشرقاوي | كبدة ومخ ومأكولات بحرية" },
       {
         property: "og:description",
-        content: "مطعم الشرقاوي - أفضل المشويات المصرية الأصيلة على الفحم.",
+        content: "مطعم الشرقاوي - أشهى أطباق الكبدة بالردة، المخ بانيه، والمأكولات البحرية بالتتبيلة الأصيلة.",
       },
       { property: "og:image", content: "/og-image.png" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "الشرقاوي" },
+      { name: "twitter:title", content: "الشرقاوي | كبدة ومخ ومأكولات بحرية" },
       {
         name: "twitter:description",
-        content: "مطعم الشرقاوي - أفضل المشويات المصرية الأصيلة على الفحم.",
+        content: "مطعم الشرقاوي - أشهى أطباق الكبدة بالردة، المخ بانيه، والمأكولات البحرية بالتتبيلة الأصيلة.",
       },
       { name: "twitter:image", content: "/og-image.png" },
     ],
